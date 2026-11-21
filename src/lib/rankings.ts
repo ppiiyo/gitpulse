@@ -325,7 +325,7 @@ export async function getDeveloperByLogin(
     const inTrackedTop = estimatedRank <= entries.length;
 
     return {
-      rank: estimatedRank,
+      rank: inTrackedTop ? estimatedRank : 0,
       previousRank: null,
       rankDelta: null,
       developer: {
@@ -348,7 +348,7 @@ export async function getDeveloperByLogin(
       view: "overall",
       insight: inTrackedTop
         ? `Live lookup vs cohort of ${entries.length}. Estimated rank #${estimatedRank}.`
-        : `Outside tracked top ${entries.length}. Live GitHub profile — estimated #${estimatedRank} if the board included everyone scored here.`,
+        : `Outside tracked top ${entries.length}. Live GitHub stats shown; not a leaderboard place yet. Expand the daily seed cohort to include mid-tier developers.`,
     };
   } catch {
     return null;
