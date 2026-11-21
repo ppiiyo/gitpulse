@@ -1,6 +1,6 @@
 /**
  * Seed repository snapshots from GitHub Search API.
- * Target: ~200 unique repos (big + mid-tier so smaller projects appear).
+ * Target: ~200 unique repos across stacks (AI, web, security, mobile…).
  *
  * Usage:
  *   GITHUB_TOKEN=ghp_xxx node scripts/seed-repos.mjs
@@ -81,6 +81,16 @@ const QUERIES = [
   "topic:devtools stars:>200",
   "created:>2024-01-01 stars:>100",
   "created:>2025-01-01 stars:>50",
+  "topic:security stars:>200",
+  "topic:authentication stars:>200",
+  "topic:cryptography stars:>200",
+  "topic:mobile stars:>500",
+  "topic:android stars:>500",
+  "topic:ios stars:>500",
+  "topic:backend stars:>500",
+  "topic:cli stars:>500",
+  "language:Swift stars:>1000",
+  "language:Kotlin stars:>1000",
 ];
 
 async function main() {
