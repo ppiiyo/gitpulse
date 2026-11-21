@@ -1,5 +1,6 @@
 import { getMockDeveloperRankings } from "@/data/mock";
 import { formatNumber } from "@/lib/utils";
+import { ShareCard } from "@/components/ShareCard";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -72,6 +73,13 @@ export default async function DeveloperPage({
           <p className="text-zinc-300 text-sm leading-relaxed">{insight}</p>
         </div>
       )}
+
+      <div className="mb-10">
+        <div className="text-xs text-zinc-500 mb-3">Share card</div>
+        <div className="overflow-x-auto">
+          <ShareCard type="developer" entry={entry} />
+        </div>
+      </div>
 
       <div className="flex gap-3">
         <a
