@@ -1,4 +1,4 @@
-import { getMockDeveloperRankings } from "@/data/mock";
+import { getDeveloperByLogin } from "@/lib/rankings";
 import { formatNumber } from "@/lib/utils";
 import { ShareCard } from "@/components/ShareCard";
 import Link from "next/link";
@@ -10,10 +10,7 @@ export default async function DeveloperPage({
   params: Promise<{ login: string }>;
 }) {
   const { login } = await params;
-  const rankings = getMockDeveloperRankings("overall");
-  const entry = rankings.find(
-    (e) => e.developer.login.toLowerCase() === login.toLowerCase()
-  );
+  const entry = await getDeveloperByLogin(login);
 
   if (!entry) notFound();
 
