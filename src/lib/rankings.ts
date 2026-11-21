@@ -225,9 +225,75 @@ export async function getDeveloperByLogin(
   login: string
 ): Promise<DeveloperRankingEntry | null> {
   const { entries } = await getDeveloperRankings("overall");
-  return (
-    entries.find(
-      (e) => e.developer.login.toLowerCase() === login.toLowerCase()
-    ) || null
+  const found = entries.find(
+    (e) => e.developer.login.toLowerCase() === login.toLowerCase()
   );
+  if (found) return found;
+
+  // Live fallback: any GitHub user can look themselves up
+  try {
+    const { fetchUser, summarizeUserRepos } = await import("@/lib/github");
+    const { scoreDevelopers } = await import("@/lib/ranking");
+    const user = await fetchUser(login);
+    if (!user || user.type === "Organization") return null;
+    const summary = await summarizeUserRepos(user.login);
+    const impactScore = Math.min(
+      1,
+      Math.log10(summary.forksReceived + 1) / 5 +
+        Math.min(summary.originalReposCount, 50) / 100
+    );
+    const activityScore = Math.min(
+      1,
+      0.3 + Math.min(summary.originalReposCount, 40) / 50
+    );
+    const metricsInput = {
+      login: user.login,
+      starsTotal: summary.starsTotal,
+      starsGrowth7d: 0,
+      starsGrowth30d: 0,
+      followersGrowth7d: 0,
+      followersGrowth30d: 0,
+      activityScore,
+      impactScore,
+      originalReposCount: summary.originalReposCount,
+      forksReceived: summary.forksReceived,
+    };
+    const [scored] = scoreDevelopers([metricsInput], "overall");
+    const better = entries.filter(
+      (e) => e.metrics.developerScore > scored.developerScore
+    ).length;
+    const estimatedRank = entries.length ? better + 1 : 1;
+
+    return {
+      rank: estimatedRank,
+      previousRank: null,
+      rankDelta: null,
+      developer: {
+        id: String(user.id),
+        login: user.login,
+        name: user.name,
+        avatarUrl: user.avatar_url,
+        bio: user.bio,
+        company: user.company,
+        location: user.location,
+        blog: user.blog || null,
+        twitterUsername: user.twitter_username,
+        followers: user.followers,
+        following: user.following,
+        publicRepos: user.public_repos,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+      },
+      metrics: scored,
+      view: "overall",
+      insight:
+        entries.length > 0 && estimatedRank > entries.length
+          ? `Outside the tracked top ${entries.length} — live profile from GitHub. Score vs cohort: would sit near #${estimatedRank} if included.`
+          : entries.length > 0
+            ? `Live lookup. Estimated place vs current cohort of ${entries.length}: #${estimatedRank}.`
+            : "Live profile from GitHub API.",
+    };
+  } catch {
+    return null;
+  }
 }
