@@ -1,6 +1,10 @@
 import { RankingTable } from "@/components/RankingTable";
 import { getRepositoryRankings } from "@/lib/rankings";
-import { REPO_CATEGORIES, type RepoCategoryId } from "@/lib/categories";
+import {
+  REPO_CATEGORIES,
+  classifyRepository,
+  type RepoCategoryId,
+} from "@/lib/categories";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -23,12 +27,41 @@ export default async function RepositoriesPage({
   const params = await searchParams;
   const view = params.view === "overall" ? "overall" : "growth";
   const category = parseCategory(params.cat);
-  const { entries, source, snapshotDate } = await getRepositoryRankings(
-    view,
-    category
-  );
+
+  const full = await getRepositoryRankings(view, "all");
+  const counts: Record<string, number> = { all: full.entries.length };
+  for (const c of REPO_CATEGORIES) {
+    if (c.id === "all") continue;
+    counts[c.id] = 0;
+  }
+  for (const e of full.entries) {
+    const id = classifyRepository({
+      language: e.repository.language,
+      topics: e.repository.topics,
+      description: e.repository.description,
+      fullName: e.repository.fullName,
+    });
+    counts[id] = (counts[id] || 0) + 1;
+  }
+
+  const entries =
+    category === "all"
+      ? full.entries
+      : full.entries
+          .filter(
+            (e) =>
+              classifyRepository({
+                language: e.repository.language,
+                topics: e.repository.topics,
+                description: e.repository.description,
+                fullName: e.repository.fullName,
+              }) === category
+          )
+          .map((e, i) => ({ ...e, rank: i + 1 }));
+
   const shown = entries.slice(0, 250);
   const catMeta = REPO_CATEGORIES.find((c) => c.id === category)!;
+  const { source, snapshotDate } = full;
 
   const qs = (v: string, c: string) => {
     const p = new URLSearchParams();
@@ -53,19 +86,26 @@ export default async function RepositoriesPage({
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
-        {REPO_CATEGORIES.map((c) => (
-          <Link
-            key={c.id}
-            href={qs(view, c.id)}
-            className={`px-2.5 py-1 rounded-full text-xs transition-colors border ${
-              category === c.id
-                ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-                : "border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
-            }`}
-          >
-            {c.label}
-          </Link>
-        ))}
+        {REPO_CATEGORIES.map((c) => {
+          const n = counts[c.id] ?? 0;
+          const empty = c.id !== "all" && n === 0;
+          return (
+            <Link
+              key={c.id}
+              href={qs(view, c.id)}
+              className={`px-2.5 py-1 rounded-full text-xs transition-colors border ${
+                category === c.id
+                  ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                  : empty
+                    ? "border-zinc-900 text-zinc-600"
+                    : "border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
+              }`}
+            >
+              {c.label}
+              <span className="ml-1 opacity-60">{n}</span>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -94,7 +134,16 @@ export default async function RepositoriesPage({
         </span>
       </div>
 
-      <RankingTable entries={shown} type="repository" />
+      {shown.length === 0 ? (
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 text-sm text-zinc-400 text-center">
+          No repos in this category yet. Daily seed will fill more stacks
+          (security, mobile, backend…). Run{" "}
+          <code className="text-zinc-300">Actions → Daily seed</code> after
+          adding <code className="text-zinc-300">GITPULSE_GITHUB_TOKEN</code>.
+        </div>
+      ) : (
+        <RankingTable entries={shown} type="repository" />
+      )}
 
       <p className="mt-6 text-xs text-zinc-600">
         Methodology v0.1-mvp · Source: {source}
