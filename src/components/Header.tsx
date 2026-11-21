@@ -27,6 +27,12 @@ export function Header() {
             Repositories
           </Link>
           <Link
+            href="/pulse"
+            className="text-zinc-400 hover:text-zinc-100 transition-colors"
+          >
+            Pulse
+          </Link>
+          <Link
             href="/methodology"
             className="text-zinc-400 hover:text-zinc-100 transition-colors"
           >

@@ -1,5 +1,5 @@
 import { RankingTable } from "@/components/RankingTable";
-import { getMockRepositoryRankings } from "@/data/mock";
+import { getRepositoryRankings } from "@/lib/rankings";
 import Link from "next/link";
 
 export const metadata = {
@@ -13,7 +13,7 @@ export default async function RepositoriesPage({
 }) {
   const params = await searchParams;
   const view = params.view === "growth" ? "growth" : "overall";
-  const entries = getMockRepositoryRankings(view);
+  const { entries, source, snapshotDate } = await getRepositoryRankings(view);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -53,7 +53,11 @@ export default async function RepositoriesPage({
       <RankingTable entries={entries} type="repository" />
 
       <p className="mt-6 text-xs text-zinc-600">
-        Methodology version v0.1-mvp · Data is mock for UI development
+        Methodology v0.1-mvp · Source: {source}
+        {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · using mock data"}
+        {source === "mock" && (
+          <> · Run <code className="text-zinc-500">npm run seed:repos</code> for live data</>
+        )}
       </p>
     </div>
   );
