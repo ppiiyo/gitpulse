@@ -1,6 +1,6 @@
 /**
  * Seed repository snapshots from GitHub Search API.
- * Target: ~100 unique repos across languages and topics.
+ * Target: ~200 unique repos (big + mid-tier so smaller projects appear).
  *
  * Usage:
  *   GITHUB_TOKEN=ghp_xxx node scripts/seed-repos.mjs
@@ -11,7 +11,7 @@ import { join } from "node:path";
 
 const GITHUB_API = "https://api.github.com";
 const TOKEN = process.env.GITHUB_TOKEN;
-const TARGET = 100;
+const TARGET = 200;
 
 if (!TOKEN) {
   console.warn(
@@ -70,15 +70,17 @@ function mapRepo(r) {
 const QUERIES = [
   "stars:>50000",
   "stars:>10000",
-  "language:TypeScript stars:>2000",
-  "language:Python stars:>3000",
-  "language:Rust stars:>1500",
-  "language:Go stars:>2000",
-  "language:JavaScript stars:>5000",
-  "topic:ai stars:>1500",
-  "topic:llm stars:>500",
-  "topic:devtools stars:>1000",
-  "created:>2024-01-01 stars:>500",
+  "stars:>1000",
+  "language:TypeScript stars:>500",
+  "language:Python stars:>800",
+  "language:Rust stars:>400",
+  "language:Go stars:>500",
+  "language:JavaScript stars:>1000",
+  "topic:ai stars:>300",
+  "topic:llm stars:>100",
+  "topic:devtools stars:>200",
+  "created:>2024-01-01 stars:>100",
+  "created:>2025-01-01 stars:>50",
 ];
 
 async function main() {
@@ -86,7 +88,7 @@ async function main() {
 
   for (const q of QUERIES) {
     if (seen.size >= TARGET) break;
-    for (const page of [1, 2]) {
+    for (const page of [1, 2, 3]) {
       if (seen.size >= TARGET) break;
       process.stdout.write(`Fetching: ${q} p${page} ... `);
       try {

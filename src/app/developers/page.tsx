@@ -16,7 +16,7 @@ export default async function DevelopersPage({
   const params = await searchParams;
   const view = params.view === "overall" ? "overall" : "growth";
   const { entries, source, snapshotDate } = await getDeveloperRankings(view);
-  const shown = entries.slice(0, 100);
+  const shown = entries.slice(0, 250);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -65,6 +65,10 @@ export default async function DevelopersPage({
         {" · "}
         <Link href="/methodology" className="text-zinc-500 hover:text-zinc-300">
           Why this isn’t GitHub stars →
+        </Link>
+        {" · "}
+        <Link href="/report" className="text-zinc-500 hover:text-zinc-300">
+          Find yourself →
         </Link>
       </p>
     </div>

@@ -16,7 +16,7 @@ export default async function RepositoriesPage({
   const params = await searchParams;
   const view = params.view === "overall" ? "overall" : "growth";
   const { entries, source, snapshotDate } = await getRepositoryRankings(view);
-  const shown = entries.slice(0, 100);
+  const shown = entries.slice(0, 250);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
