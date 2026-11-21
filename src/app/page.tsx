@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { RankingTable } from "@/components/RankingTable";
-import { getMockDeveloperRankings } from "@/data/mock";
-import { getRepositoryRankings } from "@/lib/rankings";
+import { getDeveloperRankings, getRepositoryRankings } from "@/lib/rankings";
 
 export default async function HomePage() {
-  const topDevelopers = getMockDeveloperRankings("growth").slice(0, 5);
+  const { entries: devEntries } = await getDeveloperRankings("growth");
+  const topDevelopers = devEntries.slice(0, 5);
   const { entries: repoEntries, source } = await getRepositoryRankings("growth");
   const topRepos = repoEntries.slice(0, 5);
 
