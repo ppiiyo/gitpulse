@@ -7,7 +7,6 @@ type Props =
 
 /**
  * Visual ranking card designed for screenshots / social share.
- * Keep layout tight, high contrast, minimal text.
  */
 export function ShareCard(props: Props) {
   if (props.type === "developer") {
@@ -40,7 +39,7 @@ export function ShareCard(props: Props) {
           </div>
           <div className="ml-auto text-right">
             <div className="text-3xl font-semibold tabular-nums text-zinc-50">
-              #{rank}
+              {rank > 0 ? `#${rank}` : "Unranked"}
             </div>
             {rankDelta !== null && rankDelta !== 0 && (
               <div
@@ -103,7 +102,7 @@ export function ShareCard(props: Props) {
         </div>
         <div className="text-right shrink-0">
           <div className="text-3xl font-semibold tabular-nums text-zinc-50">
-            #{rank}
+            {rank > 0 ? `#${rank}` : "Unranked"}
           </div>
           {rankDelta !== null && rankDelta !== 0 && (
             <div
