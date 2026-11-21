@@ -4,6 +4,8 @@
 
 Transparent methodology. Growth-focused. Shareable cards. Weekly pulse.
 
+**Live:** [gitpulse-ppiiyo.vercel.app](https://gitpulse-ppiiyo.vercel.app)
+
 ---
 
 ## What is GitPulse?
@@ -12,19 +14,9 @@ GitPulse ranks GitHub developers and repositories using a clear, public formula 
 
 - Developer rankings (Overall + Growth)
 - Repository rankings (Overall + Fastest Growing)
-- Individual profile & repo pages with short insights
 - Shareable ranking cards
-- Weekly Pulse reports (next)
-
-No black-box scores. No hype. Just signal.
-
-## Core Principles
-
-1. **Transparency** — Every ranking factor is documented.
-2. **Growth over vanity** — Recent momentum matters more than historical totals.
-3. **Quality signals** — Activity, consistency, and impact are part of the score.
-4. **Shareability** — Beautiful cards people actually want to post.
-5. **Honesty** — We never inflate numbers or hide methodology.
+- Weekly Pulse
+- Personal report lookup (`/report?u=username`)
 
 ## Ranking Methodology (MVP)
 
@@ -50,29 +42,6 @@ RepoScore =
 
 Full details: [`docs/methodology.md`](./docs/methodology.md)
 
-## Tech Stack
-
-- **Next.js 16** (App Router) + TypeScript
-- **Tailwind CSS 4**
-- GitHub API for data
-- JSON snapshots for history (PostgreSQL planned)
-
-## Project Status
-
-**Phase:** Foundation + data layer
-
-- [x] Project scaffold
-- [x] Core types & ranking formulas
-- [x] Methodology documentation
-- [x] Ranking pages (developers / repositories)
-- [x] Profile pages + ShareCard
-- [x] GitHub API client
-- [x] Seed script for repo snapshots
-- [ ] Daily snapshots + growth history
-- [ ] Live rankings from snapshots
-- [ ] Weekly Pulse
-- [ ] Personal reports
-
 ## Local Development
 
 ```bash
@@ -80,16 +49,38 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-### Seed repository data (optional)
+### Seed data
 
 ```bash
 export GITHUB_TOKEN=ghp_your_token
-npm run seed:repos
+npm run seed    # repos + developers
 ```
 
-Writes `data/snapshots/repos-YYYY-MM-DD.json`.
+Writes `data/snapshots/repos-YYYY-MM-DD.json` and `developers-YYYY-MM-DD.json`.
+Growth (7d/30d) improves after several daily seeds.
+
+## Daily automation
+
+GitHub Action [`.github/workflows/daily-seed.yml`](./.github/workflows/daily-seed.yml):
+
+- Every day 06:00 UTC (+ manual dispatch)
+- Seeds repos + developers
+- Commits snapshots → Vercel redeploys
+
+Optional repo secret **`GITPULSE_GITHUB_TOKEN`**: PAT for higher GitHub API rate limits during seed. Without it, Actions uses the default token.
+
+## Deploy
+
+Vercel project `gitpulse` is linked to `ppiiyo/gitpulse`.
+Production: https://gitpulse-ppiiyo.vercel.app
+
+Pushes to `main` auto-deploy.
+
+## Stack
+
+- Next.js 16 + TypeScript + Tailwind 4
+- GitHub API + JSON snapshots
+- Vercel + GitHub Actions
 
 ## License
 
