@@ -1,17 +1,15 @@
 import Link from "next/link";
 import { RankingTable } from "@/components/RankingTable";
-import {
-  getMockDeveloperRankings,
-  getMockRepositoryRankings,
-} from "@/data/mock";
+import { getMockDeveloperRankings } from "@/data/mock";
+import { getRepositoryRankings } from "@/lib/rankings";
 
-export default function HomePage() {
+export default async function HomePage() {
   const topDevelopers = getMockDeveloperRankings("growth").slice(0, 5);
-  const topRepos = getMockRepositoryRankings("growth").slice(0, 5);
+  const { entries: repoEntries, source } = await getRepositoryRankings("growth");
+  const topRepos = repoEntries.slice(0, 5);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      {/* Hero */}
       <section className="mb-16">
         <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 text-xs text-zinc-400 mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -49,7 +47,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Growth boards */}
       <div className="grid gap-12 lg:grid-cols-2">
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -79,10 +76,14 @@ export default function HomePage() {
             </Link>
           </div>
           <RankingTable entries={topRepos} type="repository" />
+          {source === "mock" && (
+            <p className="mt-2 text-xs text-zinc-600">
+              Mock data · seed repos for live rankings
+            </p>
+          )}
         </section>
       </div>
 
-      {/* Principles */}
       <section className="mt-20 grid gap-6 sm:grid-cols-3">
         {[
           {

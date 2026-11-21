@@ -1,5 +1,6 @@
-import { getMockRepositoryRankings } from "@/data/mock";
+import { getRepositoryByFullName } from "@/lib/rankings";
 import { formatNumber } from "@/lib/utils";
+import { ShareCard } from "@/components/ShareCard";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -10,10 +11,7 @@ export default async function RepositoryPage({
 }) {
   const { slug } = await params;
   const fullName = slug.join("/");
-  const rankings = getMockRepositoryRankings("overall");
-  const entry = rankings.find(
-    (e) => e.repository.fullName.toLowerCase() === fullName.toLowerCase()
-  );
+  const entry = await getRepositoryByFullName(fullName);
 
   if (!entry) notFound();
 
@@ -79,6 +77,13 @@ export default async function RepositoryPage({
           <p className="text-zinc-300 text-sm leading-relaxed">{insight}</p>
         </div>
       )}
+
+      <div className="mb-10">
+        <div className="text-xs text-zinc-500 mb-3">Share card</div>
+        <div className="overflow-x-auto">
+          <ShareCard type="repository" entry={entry} />
+        </div>
+      </div>
 
       <a
         href={repository.htmlUrl}
