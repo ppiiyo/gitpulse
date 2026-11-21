@@ -24,8 +24,9 @@ export default async function ReportPage({
         Personal report
       </h1>
       <p className="text-sm text-zinc-400 mb-8 max-w-lg">
-        Look up a GitHub username against the current ranking. Free preview —
-        deep reports and history come next.
+        Look up any GitHub username. In the tracked top you get a real rank; if
+        not — live profile + estimated place vs the cohort. So smaller developers
+        can still find themselves.
       </p>
 
       <form className="flex gap-2 mb-10" action="/report" method="get">
@@ -52,17 +53,12 @@ export default async function ReportPage({
       {login && !entry && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-400">
           <p className="mb-2">
-            <span className="text-zinc-200">@{login}</span> is not in the current
-            ranking cohort.
+            Could not load <span className="text-zinc-200">@{login}</span>.
           </p>
           <p>
-            Seed more developers with{" "}
-            <code className="text-zinc-300">npm run seed:developers</code>, or try
-            a well-known login from the{" "}
-            <Link href="/developers" className="text-zinc-300 hover:text-white">
-              leaderboard
-            </Link>
-            .
+            Check the username, or try again later (GitHub rate limits). Add{" "}
+            <code className="text-zinc-300">GITHUB_TOKEN</code> on Vercel for
+            reliable live lookups.
           </p>
         </div>
       )}
@@ -71,7 +67,7 @@ export default async function ReportPage({
         <div className="space-y-8">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Rank", value: `#${entry.rank}` },
+              { label: "Rank / est.", value: `#${entry.rank}` },
               {
                 label: "Stars",
                 value: formatNumber(entry.metrics.starsTotal),
@@ -98,7 +94,7 @@ export default async function ReportPage({
           </div>
 
           {entry.insight && (
-            <p className="text-sm text-zinc-400">{entry.insight}</p>
+            <p className="text-sm text-zinc-400 leading-relaxed">{entry.insight}</p>
           )}
 
           <div>
