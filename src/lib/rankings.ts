@@ -29,6 +29,10 @@ import {
   getMockRepositoryRankings,
   getMockDeveloperRankings,
 } from "@/data/mock";
+import {
+  classifyRepository,
+  type RepoCategoryId,
+} from "@/lib/categories";
 
 function rowToRepository(r: RepoSnapshotRow): Repository {
   return {
@@ -73,19 +77,36 @@ function rowToMetricsInput(
 }
 
 export async function getRepositoryRankings(
-  view: RankingView = "overall"
+  view: RankingView = "overall",
+  category: RepoCategoryId = "all"
 ): Promise<{
   source: "snapshot" | "mock";
   snapshotDate: string | null;
+  category: RepoCategoryId;
   entries: RepositoryRankingEntry[];
 }> {
   const latest = await loadLatestRepoSnapshot();
 
   if (!latest || latest.data.repos.length === 0) {
+    let mockEntries = getMockRepositoryRankings(view);
+    if (category !== "all") {
+      mockEntries = mockEntries
+        .filter(
+          (e) =>
+            classifyRepository({
+              language: e.repository.language,
+              topics: e.repository.topics,
+              description: e.repository.description,
+              fullName: e.repository.fullName,
+            }) === category
+        )
+        .map((e, i) => ({ ...e, rank: i + 1 }));
+    }
     return {
       source: "mock",
       snapshotDate: null,
-      entries: getMockRepositoryRankings(view),
+      category,
+      entries: mockEntries,
     };
   }
 
@@ -116,10 +137,29 @@ export async function getRepositoryRankings(
         : undefined,
   }));
 
+  const filtered =
+    category === "all"
+      ? entries
+      : entries.filter((e) => {
+          const cat = classifyRepository({
+            language: e.repository.language,
+            topics: e.repository.topics,
+            description: e.repository.description,
+            fullName: e.repository.fullName,
+          });
+          return cat === category;
+        });
+
+  const ranked = filtered.map((e, index) => ({
+    ...e,
+    rank: index + 1,
+  }));
+
   return {
     source: "snapshot",
     snapshotDate: latest.date,
-    entries,
+    category,
+    entries: ranked,
   };
 }
 
@@ -230,7 +270,6 @@ export async function getDeveloperByLogin(
   );
   if (found) return found;
 
-  // Live fallback: any GitHub user can look themselves up
   try {
     const { fetchUser, summarizeUserRepos } = await import("@/lib/github");
     const { scoreDevelopers } = await import("@/lib/ranking");
