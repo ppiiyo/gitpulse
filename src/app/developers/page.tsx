@@ -1,5 +1,5 @@
 import { RankingTable } from "@/components/RankingTable";
-import { getMockDeveloperRankings } from "@/data/mock";
+import { getDeveloperRankings } from "@/lib/rankings";
 import Link from "next/link";
 
 export const metadata = {
@@ -13,7 +13,7 @@ export default async function DevelopersPage({
 }) {
   const params = await searchParams;
   const view = params.view === "growth" ? "growth" : "overall";
-  const entries = getMockDeveloperRankings(view);
+  const { entries, source, snapshotDate } = await getDeveloperRankings(view);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -53,7 +53,15 @@ export default async function DevelopersPage({
       <RankingTable entries={entries} type="developer" />
 
       <p className="mt-6 text-xs text-zinc-600">
-        Methodology version v0.1-mvp · Data is mock for UI development
+        Methodology v0.1-mvp · Source: {source}
+        {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · using mock data"}
+        {source === "mock" && (
+          <>
+            {" "}
+            · Run <code className="text-zinc-500">npm run seed:developers</code>{" "}
+            for live data
+          </>
+        )}
       </p>
     </div>
   );

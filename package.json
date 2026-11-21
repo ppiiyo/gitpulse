@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:repos": "node scripts/seed-repos.mjs"
+    "seed:repos": "node scripts/seed-repos.mjs",
+    "seed:developers": "node scripts/seed-developers.mjs",
+    "seed": "node scripts/seed-repos.mjs && node scripts/seed-developers.mjs"
   },
   "dependencies": {
     "next": "16.4.6",

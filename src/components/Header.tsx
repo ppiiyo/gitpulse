@@ -33,6 +33,12 @@ export function Header() {
             Pulse
           </Link>
           <Link
+            href="/report"
+            className="text-zinc-400 hover:text-zinc-100 transition-colors"
+          >
+            Report
+          </Link>
+          <Link
             href="/methodology"
             className="text-zinc-400 hover:text-zinc-100 transition-colors"
           >
