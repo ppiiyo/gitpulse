@@ -14,8 +14,9 @@ export default async function DevelopersPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const params = await searchParams;
-  const view = params.view === "growth" ? "growth" : "overall";
+  const view = params.view === "overall" ? "overall" : "growth";
   const { entries, source, snapshotDate } = await getDeveloperRankings(view);
+  const shown = entries.slice(0, 100);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -24,14 +25,25 @@ export default async function DevelopersPage({
           Developer Rankings
         </h1>
         <p className="mt-2 text-zinc-400 text-sm max-w-xl">
-          Ranked with a public formula that balances influence, recent growth,
-          activity, and impact.
+          {view === "growth"
+            ? "Sorted by growth-weighted score — recent momentum matters more than lifetime stars."
+            : "Overall score balances influence, growth, activity, and impact."}
         </p>
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap items-center gap-2 mb-6">
         <Link
-          href="/developers"
+          href="/developers?view=growth"
+          className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+            view === "growth"
+              ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+              : "text-zinc-400 hover:text-zinc-200"
+          }`}
+        >
+          Fastest Growing
+        </Link>
+        <Link
+          href="/developers?view=overall"
           className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
             view === "overall"
               ? "bg-zinc-100 text-zinc-900"
@@ -40,30 +52,20 @@ export default async function DevelopersPage({
         >
           Overall
         </Link>
-        <Link
-          href="/developers?view=growth"
-          className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-            view === "growth"
-              ? "bg-zinc-100 text-zinc-900"
-              : "text-zinc-400 hover:text-zinc-200"
-          }`}
-        >
-          Growth
-        </Link>
+        <span className="text-xs text-zinc-600 ml-auto">
+          Showing {shown.length} of {entries.length}
+        </span>
       </div>
 
-      <RankingTable entries={entries} type="developer" />
+      <RankingTable entries={shown} type="developer" />
 
       <p className="mt-6 text-xs text-zinc-600">
         Methodology v0.1-mvp · Source: {source}
-        {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · using mock data"}
-        {source === "mock" && (
-          <>
-            {" "}
-            · Run <code className="text-zinc-500">npm run seed:developers</code>{" "}
-            for live data
-          </>
-        )}
+        {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · demo data"}
+        {" · "}
+        <Link href="/methodology" className="text-zinc-500 hover:text-zinc-300">
+          Why this isn’t GitHub stars →
+        </Link>
       </p>
     </div>
   );

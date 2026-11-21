@@ -14,8 +14,9 @@ export default async function RepositoriesPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const params = await searchParams;
-  const view = params.view === "growth" ? "growth" : "overall";
+  const view = params.view === "overall" ? "overall" : "growth";
   const { entries, source, snapshotDate } = await getRepositoryRankings(view);
+  const shown = entries.slice(0, 100);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -24,14 +25,25 @@ export default async function RepositoriesPage({
           Repository Rankings
         </h1>
         <p className="mt-2 text-zinc-400 text-sm max-w-xl">
-          Ranked by stars, recent growth, activity, and basic quality signals.
-          Growth view prioritizes momentum.
+          {view === "growth"
+            ? "40% of the score is recent star growth. New and rising projects can outrank old giants."
+            : "Overall score mixes stars, growth, activity, and basic quality signals."}
         </p>
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap items-center gap-2 mb-6">
         <Link
-          href="/repositories"
+          href="/repositories?view=growth"
+          className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+            view === "growth"
+              ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+              : "text-zinc-400 hover:text-zinc-200"
+          }`}
+        >
+          Fastest Growing
+        </Link>
+        <Link
+          href="/repositories?view=overall"
           className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
             view === "overall"
               ? "bg-zinc-100 text-zinc-900"
@@ -40,29 +52,20 @@ export default async function RepositoriesPage({
         >
           Overall
         </Link>
-        <Link
-          href="/repositories?view=growth"
-          className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-            view === "growth"
-              ? "bg-zinc-100 text-zinc-900"
-              : "text-zinc-400 hover:text-zinc-200"
-          }`}
-        >
-          Fastest Growing
-        </Link>
+        <span className="text-xs text-zinc-600 ml-auto">
+          Showing {shown.length} of {entries.length}
+        </span>
       </div>
 
-      <RankingTable entries={entries} type="repository" />
+      <RankingTable entries={shown} type="repository" />
 
       <p className="mt-6 text-xs text-zinc-600">
         Methodology v0.1-mvp · Source: {source}
-        {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · using mock data"}
-        {source === "mock" && (
-          <>
-            {" "}· Run <code className="text-zinc-500">npm run seed:repos</code> for
-            live data
-          </>
-        )}
+        {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · demo data"}
+        {" · "}
+        <Link href="/methodology" className="text-zinc-500 hover:text-zinc-300">
+          Why this isn’t GitHub stars →
+        </Link>
       </p>
     </div>
   );
