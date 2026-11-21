@@ -2,6 +2,8 @@ import { RankingTable } from "@/components/RankingTable";
 import { getRepositoryRankings } from "@/lib/rankings";
 import Link from "next/link";
 
+export const instant = false;
+
 export const metadata = {
   title: "Repository Rankings",
 };
@@ -56,7 +58,10 @@ export default async function RepositoriesPage({
         Methodology v0.1-mvp · Source: {source}
         {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · using mock data"}
         {source === "mock" && (
-          <> · Run <code className="text-zinc-500">npm run seed:repos</code> for live data</>
+          <>
+            {" "}· Run <code className="text-zinc-500">npm run seed:repos</code> for
+            live data
+          </>
         )}
       </p>
     </div>

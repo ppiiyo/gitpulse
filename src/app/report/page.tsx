@@ -3,6 +3,9 @@ import { getDeveloperByLogin } from "@/lib/rankings";
 import { formatNumber } from "@/lib/utils";
 import { ShareCard } from "@/components/ShareCard";
 
+// Allow runtime data (searchParams / snapshots)
+export const instant = false;
+
 export const metadata = {
   title: "Personal Report",
 };
