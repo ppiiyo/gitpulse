@@ -2,9 +2,17 @@
 
 **Honest rankings for developers and repositories on GitHub.**
 
-Transparent methodology. Growth-focused. Shareable cards. Weekly pulse.
+Transparent methodology · Growth-focused · Shareable cards · Weekly pulse
 
-**Live:** [gitpulse-ppiiyo.vercel.app](https://gitpulse-ppiiyo.vercel.app)
+[![Live](https://img.shields.io/badge/live-gitpulse--ppiiyo.vercel.app-10b981?style=flat-square)](https://gitpulse-ppiiyo.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square)](https://nextjs.org)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
+
+**→ [Open product](https://gitpulse-ppiiyo.vercel.app)**
+
+<p align="center">
+  <img src="./public/og.svg" alt="GitPulse — Honest rankings for developers and repos" width="100%" />
+</p>
 
 ---
 
@@ -67,18 +75,17 @@ GitHub Action [`.github/workflows/daily-seed.yml`](./.github/workflows/daily-see
 - Seeds repos + developers
 - Commits snapshots → Vercel redeploys
 
-Optional repo secret **`GITPULSE_GITHUB_TOKEN`**: PAT for higher GitHub API rate limits during seed. Without it, Actions uses the default token.
+Optional repo secret **`GITPULSE_GITHUB_TOKEN`**: PAT for higher GitHub API rate limits during seed.
 
 ## Deploy
 
-Vercel project `gitpulse` is linked to `ppiiyo/gitpulse`.
-Production: https://gitpulse-ppiiyo.vercel.app
+**Production:** https://gitpulse-ppiiyo.vercel.app
 
-Pushes to `main` auto-deploy.
+Vercel project `gitpulse` ↔ `ppiiyo/gitpulse`. Pushes to `main` auto-deploy.
 
 ## Stack
 
-- Next.js 16 + TypeScript + Tailwind 4
+- Next.js 16 + TypeScript + Tailwind CSS 4
 - GitHub API + JSON snapshots
 - Vercel + GitHub Actions
 
