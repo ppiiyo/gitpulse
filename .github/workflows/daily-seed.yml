@@ -1,0 +1,45 @@
+name: Daily seed
+
+on:
+  schedule:
+    # 06:00 UTC every day
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Seed repositories
+        env:
+          # Prefer a PAT with public_repo for higher API limits; falls back to Actions token
+          GITHUB_TOKEN: ${{ secrets.GITPULSE_GITHUB_TOKEN || github.token }}
+        run: node scripts/seed-repos.mjs
+
+      - name: Seed developers
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITPULSE_GITHUB_TOKEN || github.token }}
+        run: node scripts/seed-developers.mjs
+
+      - name: Commit snapshots
+        run: |
+          git config user.name "gitpulse-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/snapshots/*.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No snapshot changes"
+          else
+            git commit -m "chore: daily snapshots $(date -u +%Y-%m-%d)"
+            git push
+          fi
