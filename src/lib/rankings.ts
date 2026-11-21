@@ -270,6 +270,7 @@ export async function getDeveloperByLogin(
   );
   if (found) return found;
 
+  // Live fallback: score *inside* the cohort so min-max normalize works
   try {
     const { fetchUser, summarizeUserRepos } = await import("@/lib/github");
     const { scoreDevelopers } = await import("@/lib/ranking");
@@ -285,7 +286,7 @@ export async function getDeveloperByLogin(
       1,
       0.3 + Math.min(summary.originalReposCount, 40) / 50
     );
-    const metricsInput = {
+    const candidate = {
       login: user.login,
       starsTotal: summary.starsTotal,
       starsGrowth7d: 0,
@@ -297,11 +298,31 @@ export async function getDeveloperByLogin(
       originalReposCount: summary.originalReposCount,
       forksReceived: summary.forksReceived,
     };
-    const [scored] = scoreDevelopers([metricsInput], "overall");
-    const better = entries.filter(
-      (e) => e.metrics.developerScore > scored.developerScore
-    ).length;
-    const estimatedRank = entries.length ? better + 1 : 1;
+
+    const cohortInputs = entries.map((e) => ({
+      login: e.developer.login,
+      starsTotal: e.metrics.starsTotal,
+      starsGrowth7d: e.metrics.starsGrowth7d,
+      starsGrowth30d: e.metrics.starsGrowth30d,
+      followersGrowth7d: e.metrics.followersGrowth7d,
+      followersGrowth30d: e.metrics.followersGrowth30d,
+      activityScore: e.metrics.activityScore,
+      impactScore: e.metrics.impactScore,
+      originalReposCount: e.metrics.originalReposCount,
+      forksReceived: e.metrics.forksReceived,
+    }));
+    const scoredAll = scoreDevelopers([...cohortInputs, candidate], "overall");
+    const scored = scoredAll.find(
+      (m) => m.login.toLowerCase() === user.login.toLowerCase()
+    )!;
+    const ordered = [...scoredAll].sort(
+      (a, b) => b.developerScore - a.developerScore
+    );
+    const estimatedRank =
+      ordered.findIndex(
+        (m) => m.login.toLowerCase() === user.login.toLowerCase()
+      ) + 1;
+    const inTrackedTop = estimatedRank <= entries.length;
 
     return {
       rank: estimatedRank,
@@ -325,12 +346,9 @@ export async function getDeveloperByLogin(
       },
       metrics: scored,
       view: "overall",
-      insight:
-        entries.length > 0 && estimatedRank > entries.length
-          ? `Outside the tracked top ${entries.length} — live profile from GitHub. Score vs cohort: would sit near #${estimatedRank} if included.`
-          : entries.length > 0
-            ? `Live lookup. Estimated place vs current cohort of ${entries.length}: #${estimatedRank}.`
-            : "Live profile from GitHub API.",
+      insight: inTrackedTop
+        ? `Live lookup vs cohort of ${entries.length}. Estimated rank #${estimatedRank}.`
+        : `Outside tracked top ${entries.length}. Live GitHub profile — estimated #${estimatedRank} if the board included everyone scored here.`,
     };
   } catch {
     return null;
