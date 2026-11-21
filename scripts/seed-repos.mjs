@@ -1,11 +1,9 @@
 /**
  * Seed repository snapshots from GitHub Search API.
+ * Target: ~100 unique repos across languages and topics.
  *
  * Usage:
  *   GITHUB_TOKEN=ghp_xxx node scripts/seed-repos.mjs
- *
- * Writes JSON to data/snapshots/repos-YYYY-MM-DD.json
- * Safe to re-run; overwrites the day's file.
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
@@ -13,6 +11,7 @@ import { join } from "node:path";
 
 const GITHUB_API = "https://api.github.com";
 const TOKEN = process.env.GITHUB_TOKEN;
+const TARGET = 100;
 
 if (!TOKEN) {
   console.warn(
@@ -69,37 +68,49 @@ function mapRepo(r) {
 }
 
 const QUERIES = [
+  "stars:>50000",
   "stars:>10000",
-  "language:TypeScript stars:>3000",
-  "language:Python stars:>5000",
-  "language:Rust stars:>2000",
-  "language:Go stars:>3000",
-  "topic:ai stars:>2000",
+  "language:TypeScript stars:>2000",
+  "language:Python stars:>3000",
+  "language:Rust stars:>1500",
+  "language:Go stars:>2000",
+  "language:JavaScript stars:>5000",
+  "topic:ai stars:>1500",
+  "topic:llm stars:>500",
+  "topic:devtools stars:>1000",
+  "created:>2024-01-01 stars:>500",
 ];
 
 async function main() {
   const seen = new Map();
 
   for (const q of QUERIES) {
-    process.stdout.write(`Fetching: ${q} ... `);
-    try {
-      const data = await searchRepos(q, 1, 25);
-      let added = 0;
-      for (const item of data.items || []) {
-        if (item.fork || item.archived) continue;
-        if (!seen.has(item.full_name)) {
-          seen.set(item.full_name, mapRepo(item));
-          added++;
+    if (seen.size >= TARGET) break;
+    for (const page of [1, 2]) {
+      if (seen.size >= TARGET) break;
+      process.stdout.write(`Fetching: ${q} p${page} ... `);
+      try {
+        const data = await searchRepos(q, page, 30);
+        let added = 0;
+        for (const item of data.items || []) {
+          if (item.fork || item.archived) continue;
+          if (!seen.has(item.full_name)) {
+            seen.set(item.full_name, mapRepo(item));
+            added++;
+          }
         }
+        console.log(`+${added} (total ${seen.size})`);
+      } catch (err) {
+        console.error(`failed: ${err.message}`);
       }
-      console.log(`+${added} (total ${seen.size})`);
-    } catch (err) {
-      console.error(`failed: ${err.message}`);
+      await new Promise((r) => setTimeout(r, TOKEN ? 400 : 1200));
     }
-    await new Promise((r) => setTimeout(r, 800));
   }
 
-  const repos = Array.from(seen.values()).sort((a, b) => b.stars - a.stars);
+  const repos = Array.from(seen.values())
+    .sort((a, b) => b.stars - a.stars)
+    .slice(0, TARGET);
+
   const day = new Date().toISOString().slice(0, 10);
   const dir = join(process.cwd(), "data", "snapshots");
   await mkdir(dir, { recursive: true });
