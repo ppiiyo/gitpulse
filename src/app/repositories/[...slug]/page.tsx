@@ -4,6 +4,8 @@ import { ShareCard } from "@/components/ShareCard";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const instant = false;
+
 export default async function RepositoryPage({
   params,
 }: {

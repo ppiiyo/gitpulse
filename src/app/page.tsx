@@ -2,6 +2,8 @@ import Link from "next/link";
 import { RankingTable } from "@/components/RankingTable";
 import { getDeveloperRankings, getRepositoryRankings } from "@/lib/rankings";
 
+export const instant = false;
+
 export default async function HomePage() {
   const { entries: devEntries } = await getDeveloperRankings("growth");
   const topDevelopers = devEntries.slice(0, 5);

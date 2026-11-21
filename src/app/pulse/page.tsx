@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getRepositoryRankings } from "@/lib/rankings";
 import { formatNumber } from "@/lib/utils";
 
+export const instant = false;
+
 export const metadata = {
   title: "Weekly Pulse",
 };
@@ -32,8 +34,8 @@ export default async function PulsePage() {
           <p className="mb-2">Live pulse needs snapshot history.</p>
           <p>
             Run{" "}
-            <code className="text-zinc-300">npm run seed:repos</code> daily for
-            a week, then growth and movers will appear here automatically.
+            <code className="text-zinc-300">npm run seed:repos</code> daily for a
+            week, then growth and movers will appear here automatically.
           </p>
         </div>
       ) : (
