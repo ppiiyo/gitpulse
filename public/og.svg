@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#09090b"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#g)" opacity="0.4"/>
+  <defs>
+    <radialGradient id="g" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(900 100) rotate(90) scale(500 700)">
+      <stop stop-color="#10b981" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#09090b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="80" cy="80" r="8" fill="#34d399"/>
+  <text x="110" y="90" fill="#fafafa" font-family="system-ui,sans-serif" font-size="28" font-weight="600">GitPulse</text>
+  <text x="80" y="280" fill="#fafafa" font-family="system-ui,sans-serif" font-size="56" font-weight="600">Honest rankings</text>
+  <text x="80" y="350" fill="#fafafa" font-family="system-ui,sans-serif" font-size="56" font-weight="600">for developers &amp; repos</text>
+  <text x="80" y="430" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="24">Transparent · Growth-focused · Shareable</text>
+  <rect x="80" y="480" width="220" height="48" rx="10" fill="#f4f4f5"/>
+  <text x="110" y="511" fill="#18181b" font-family="system-ui,sans-serif" font-size="18" font-weight="600">View Rankings</text>
+</svg>
