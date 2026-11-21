@@ -2,7 +2,6 @@ name: Daily seed
 
 on:
   schedule:
-    # 06:00 UTC every day
     - cron: "0 6 * * *"
   workflow_dispatch:
 
@@ -15,6 +14,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITPULSE_GITHUB_TOKEN || github.token }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -23,7 +25,6 @@ jobs:
 
       - name: Seed repositories
         env:
-          # Prefer a PAT with public_repo for higher API limits; falls back to Actions token
           GITHUB_TOKEN: ${{ secrets.GITPULSE_GITHUB_TOKEN || github.token }}
         run: node scripts/seed-repos.mjs
 
@@ -32,14 +33,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITPULSE_GITHUB_TOKEN || github.token }}
         run: node scripts/seed-developers.mjs
 
-      - name: Commit snapshots
+      - name: Commit and push snapshots
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITPULSE_GITHUB_TOKEN || github.token }}
         run: |
           git config user.name "gitpulse-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/snapshots/*.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No snapshot changes"
-          else
-            git commit -m "chore: daily snapshots $(date -u +%Y-%m-%d)"
-            git push
+            exit 0
           fi
+          git commit -m "chore: daily snapshots $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push origin main

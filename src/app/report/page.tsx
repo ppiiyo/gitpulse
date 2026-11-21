@@ -25,8 +25,8 @@ export default async function ReportPage({
       </h1>
       <p className="text-sm text-zinc-400 mb-8 max-w-lg">
         Look up any GitHub username. In the tracked top you get a real rank; if
-        not — live profile + estimated place vs the cohort. So smaller developers
-        can still find themselves.
+        not — live stats + Unranked (the board is still a limited cohort of top
+        accounts, not every developer on GitHub).
       </p>
 
       <form className="flex gap-2 mb-10" action="/report" method="get">
@@ -67,7 +67,10 @@ export default async function ReportPage({
         <div className="space-y-8">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Rank / est.", value: `#${entry.rank}` },
+              {
+                label: "Rank",
+                value: entry.rank > 0 ? `#${entry.rank}` : "Unranked",
+              },
               {
                 label: "Stars",
                 value: formatNumber(entry.metrics.starsTotal),
