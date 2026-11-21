@@ -12,9 +12,9 @@ GitPulse ranks GitHub developers and repositories using a clear, public formula 
 
 - Developer rankings (Overall + Growth)
 - Repository rankings (Overall + Fastest Growing)
-- Individual profile & repo pages with short AI insights
-- Weekly Pulse reports
+- Individual profile & repo pages with short insights
 - Shareable ranking cards
+- Weekly Pulse reports (next)
 
 No black-box scores. No hype. Just signal.
 
@@ -38,11 +38,6 @@ DeveloperScore =
   0.15 × ImpactScore
 ```
 
-- **StarsScore** — Weighted sum of stars on original repositories (time-decayed)
-- **GrowthScore** — Stars + followers gained in the last 7 and 30 days
-- **ActivityScore** — Consistency of commits and public events (last 90 days)
-- **ImpactScore** — Forks, meaningful repositories, community signals
-
 ### Repositories
 
 ```
@@ -53,28 +48,28 @@ RepoScore =
   0.10 × QualityScore
 ```
 
-Full details: [`/docs/methodology.md`](./docs/methodology.md)
+Full details: [`docs/methodology.md`](./docs/methodology.md)
 
 ## Tech Stack
 
 - **Next.js 16** (App Router) + TypeScript
 - **Tailwind CSS 4**
-- **PostgreSQL** (planned for snapshots & history)
 - GitHub API for data
-- AI only for short, factual commentary (not for ranking)
+- JSON snapshots for history (PostgreSQL planned)
 
 ## Project Status
 
-**Phase:** Foundation → MVP
+**Phase:** Foundation + data layer
 
-- [x] Repository & project scaffold
+- [x] Project scaffold
 - [x] Core types & ranking formulas
 - [x] Methodology documentation
-- [ ] Data collection pipeline
-- [ ] Ranking engine
-- [ ] Public ranking pages
-- [ ] Profile & repository pages
-- [ ] Shareable cards
+- [x] Ranking pages (developers / repositories)
+- [x] Profile pages + ShareCard
+- [x] GitHub API client
+- [x] Seed script for repo snapshots
+- [ ] Daily snapshots + growth history
+- [ ] Live rankings from snapshots
 - [ ] Weekly Pulse
 - [ ] Personal reports
 
@@ -86,6 +81,15 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Seed repository data (optional)
+
+```bash
+export GITHUB_TOKEN=ghp_your_token
+npm run seed:repos
+```
+
+Writes `data/snapshots/repos-YYYY-MM-DD.json`.
 
 ## License
 
