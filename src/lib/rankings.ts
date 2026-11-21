@@ -7,15 +7,28 @@ import type {
   Repository,
   RepositoryMetrics,
   RepositoryRankingEntry,
+  Developer,
+  DeveloperMetrics,
+  DeveloperRankingEntry,
 } from "@/types";
 import {
   enrichReposWithGrowth,
   loadLatestRepoSnapshot,
   activityFromPushedAt,
+  enrichDevelopersWithGrowth,
+  loadLatestDeveloperSnapshot,
   type RepoSnapshotRow,
+  type DeveloperSnapshotRow,
 } from "@/lib/snapshots";
-import { scoreRepositories, calcRepoQualityScore } from "@/lib/ranking";
-import { getMockRepositoryRankings } from "@/data/mock";
+import {
+  scoreRepositories,
+  scoreDevelopers,
+  calcRepoQualityScore,
+} from "@/lib/ranking";
+import {
+  getMockRepositoryRankings,
+  getMockDeveloperRankings,
+} from "@/data/mock";
 
 function rowToRepository(r: RepoSnapshotRow): Repository {
   return {
@@ -79,16 +92,12 @@ export async function getRepositoryRankings(
   const enriched = await enrichReposWithGrowth(latest.data.repos);
   const metricsInput = enriched.map(rowToMetricsInput);
   const scored = scoreRepositories(metricsInput, view);
-
   const byName = new Map(enriched.map((r) => [r.fullName, r]));
 
   const sorted = scored
     .map((m) => {
       const row = byName.get(m.fullName)!;
-      return {
-        metrics: m,
-        repository: rowToRepository(row),
-      };
+      return { metrics: m, repository: rowToRepository(row) };
     })
     .sort((a, b) => b.metrics.repoScore - a.metrics.repoScore);
 
@@ -121,6 +130,104 @@ export async function getRepositoryByFullName(
   return (
     entries.find(
       (e) => e.repository.fullName.toLowerCase() === fullName.toLowerCase()
+    ) || null
+  );
+}
+
+function rowToDeveloper(d: DeveloperSnapshotRow): Developer {
+  return {
+    id: d.id,
+    login: d.login,
+    name: d.name,
+    avatarUrl: d.avatarUrl,
+    bio: d.bio,
+    company: d.company,
+    location: d.location,
+    blog: d.blog,
+    twitterUsername: d.twitterUsername,
+    followers: d.followers,
+    following: d.following,
+    publicRepos: d.publicRepos,
+    createdAt: d.createdAt,
+    updatedAt: d.updatedAt,
+  };
+}
+
+function rowToDevMetricsInput(
+  d: DeveloperSnapshotRow
+): Omit<DeveloperMetrics, "starsScore" | "growthScore" | "developerScore"> {
+  return {
+    login: d.login,
+    starsTotal: d.starsTotal,
+    starsGrowth7d: d.starsGrowth7d ?? 0,
+    starsGrowth30d: d.starsGrowth30d ?? 0,
+    followersGrowth7d: d.followersGrowth7d ?? 0,
+    followersGrowth30d: d.followersGrowth30d ?? 0,
+    activityScore: d.activityScore,
+    impactScore: d.impactScore,
+    originalReposCount: d.originalReposCount,
+    forksReceived: d.forksReceived,
+  };
+}
+
+export async function getDeveloperRankings(
+  view: RankingView = "overall"
+): Promise<{
+  source: "snapshot" | "mock";
+  snapshotDate: string | null;
+  entries: DeveloperRankingEntry[];
+}> {
+  const latest = await loadLatestDeveloperSnapshot();
+
+  if (!latest || latest.data.developers.length === 0) {
+    return {
+      source: "mock",
+      snapshotDate: null,
+      entries: getMockDeveloperRankings(view),
+    };
+  }
+
+  const enriched = await enrichDevelopersWithGrowth(latest.data.developers);
+  const metricsInput = enriched.map(rowToDevMetricsInput);
+  const scored = scoreDevelopers(metricsInput, view);
+  const byLogin = new Map(enriched.map((d) => [d.login, d]));
+
+  const sorted = scored
+    .map((m) => {
+      const row = byLogin.get(m.login)!;
+      return { metrics: m, developer: rowToDeveloper(row) };
+    })
+    .sort((a, b) => b.metrics.developerScore - a.metrics.developerScore);
+
+  const entries: DeveloperRankingEntry[] = sorted.map((item, index) => ({
+    rank: index + 1,
+    previousRank: null,
+    rankDelta: null,
+    developer: item.developer,
+    metrics: item.metrics,
+    view,
+    insight:
+      view === "growth"
+        ? item.metrics.starsGrowth30d > 0 || item.metrics.followersGrowth30d > 0
+          ? `+${item.metrics.starsGrowth30d} stars / +${item.metrics.followersGrowth30d} followers (30d)`
+          : "Limited growth history — daily seeds unlock momentum"
+        : undefined,
+  }));
+
+  return {
+    source: "snapshot",
+    snapshotDate: latest.date,
+    entries,
+  };
+}
+
+export async function getDeveloperByLogin(
+  login: string
+): Promise<DeveloperRankingEntry | null> {
+  const { entries } = await getDeveloperRankings("overall");
+  return (
+    entries.find(
+      (e) => e.developer.login.toLowerCase() === login.toLowerCase()
     ) || null
   );
 }
