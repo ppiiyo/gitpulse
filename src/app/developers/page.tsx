@@ -2,7 +2,7 @@ import { RankingTable } from "@/components/RankingTable";
 import { getDeveloperRankings } from "@/lib/rankings";
 import Link from "next/link";
 
-export const instant = false;
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Developer Rankings",

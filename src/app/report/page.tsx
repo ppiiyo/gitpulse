@@ -3,8 +3,7 @@ import { getDeveloperByLogin } from "@/lib/rankings";
 import { formatNumber } from "@/lib/utils";
 import { ShareCard } from "@/components/ShareCard";
 
-// Allow runtime data (searchParams / snapshots)
-export const instant = false;
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Personal Report",
@@ -58,8 +57,8 @@ export default async function ReportPage({
           </p>
           <p>
             Seed more developers with{" "}
-            <code className="text-zinc-300">npm run seed:developers</code>, or
-            try a well-known login from the{" "}
+            <code className="text-zinc-300">npm run seed:developers</code>, or try
+            a well-known login from the{" "}
             <Link href="/developers" className="text-zinc-300 hover:text-white">
               leaderboard
             </Link>

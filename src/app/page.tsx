@@ -2,7 +2,7 @@ import Link from "next/link";
 import { RankingTable } from "@/components/RankingTable";
 import { getDeveloperRankings, getRepositoryRankings } from "@/lib/rankings";
 
-export const instant = false;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const { entries: devEntries } = await getDeveloperRankings("growth");
