@@ -1,94 +1,126 @@
-# GitPulse
+<p align="center">
+  <img src="public/og.svg" alt="GitPulse" width="100%" />
+</p>
 
-**Honest rankings for developers and repositories on GitHub.**
-
-Transparent methodology · Growth-focused · Shareable cards · Weekly pulse
-
-[![Live](https://img.shields.io/badge/live-gitpulse--ppiiyo.vercel.app-10b981?style=flat-square)](https://gitpulse-ppiiyo.vercel.app)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square)](https://nextjs.org)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
-
-**→ [Open product](https://gitpulse-ppiiyo.vercel.app)**
+<h1 align="center">GitPulse</h1>
 
 <p align="center">
-  <img src="./public/og.svg" alt="GitPulse — Honest rankings for developers and repos" width="100%" />
+  <strong>Who is rising on GitHub — not who already won.</strong>
+</p>
+
+<p align="center">
+  Transparent, growth-weighted rankings for developers &amp; repositories.<br/>
+  Public formula · Stack boards · Share cards · Daily updates
+</p>
+
+<p align="center">
+  <a href="https://gitpulse-ppiiyo.vercel.app"><img src="https://img.shields.io/badge/Live-Open%20product-10b981?style=for-the-badge" alt="Live" /></a>
+  <a href="https://github.com/ppiiyo/gitpulse/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT" /></a>
+  <a href="https://github.com/ppiiyo/gitpulse/stargazers"><img src="https://img.shields.io/github/stars/ppiiyo/gitpulse?style=for-the-badge" alt="Stars" /></a>
+</p>
+
+<p align="center">
+  <a href="https://gitpulse-ppiiyo.vercel.app">→ Try it live</a>
+  ·
+  <a href="https://gitpulse-ppiiyo.vercel.app/report">Find your rank</a>
+  ·
+  <a href="./docs/methodology.md">Methodology</a>
 </p>
 
 ---
 
-## What is GitPulse?
+## Why GitPulse?
 
-GitPulse ranks GitHub developers and repositories using a clear, public formula that prioritizes **recent growth and real activity** — not just lifetime stars.
+GitHub’s default sort is **lifetime stars**. Legends stay on top forever. New and mid-tier projects never surface.
 
-- Developer rankings (Overall + Growth)
-- Repository rankings (Overall + Fastest Growing)
-- Shareable ranking cards
-- Weekly Pulse
-- Personal report lookup (`/report?u=username`)
+GitPulse ranks with a **public formula** that prioritizes **recent growth**:
 
-## Ranking Methodology (MVP)
-
-### Developers
-
-```
-DeveloperScore =
-  0.35 × StarsScore +
-  0.30 × GrowthScore +
-  0.20 × ActivityScore +
-  0.15 × ImpactScore
-```
-
-### Repositories
+| | GitHub stars sort | GitPulse |
+|---|---|---|
+| What wins | Old giants | Rising projects |
+| Formula | Hidden / none | Fully public |
+| Stack boards | No | AI, Web, Security, Mobile… |
+| Share cards | No | Yes |
+| Personal report | No | Any username |
 
 ```
-RepoScore =
-  0.25 × Stars +
-  0.40 × StarsGrowth +
-  0.25 × Activity +
-  0.10 × QualityScore
+RepoScore ≈ 0.25·Stars + 0.40·Growth + 0.25·Activity + 0.10·Quality
 ```
 
-Full details: [`docs/methodology.md`](./docs/methodology.md)
+Full math → [`docs/methodology.md`](./docs/methodology.md)
 
-## Local Development
+---
+
+## Features
+
+- **Fastest Growing** boards for developers & repos
+- **Per-stack rankings** (AI/LLM, Web, Backend, DevTools, Systems, Mobile, Data, Security, Learning)
+- **Personal report** — look up any GitHub user (`/report?u=username`)
+- **Share cards** built for Twitter / LinkedIn / Discord
+- **Daily seed** via GitHub Actions (automatic snapshots)
+- **Open methodology** — no black box
+
+---
+
+## Quick start
 
 ```bash
+git clone https://github.com/ppiiyo/gitpulse.git
+cd gitpulse
 npm install
 npm run dev
 ```
 
-### Seed data
+Open [http://localhost:3000](http://localhost:3000).
+
+### Seed live data
 
 ```bash
-export GITHUB_TOKEN=ghp_your_token
-npm run seed    # repos + developers
+export GITHUB_TOKEN=ghp_your_token   # needs public read
+npm run seed                         # repos + developers
 ```
 
-Writes `data/snapshots/repos-YYYY-MM-DD.json` and `developers-YYYY-MM-DD.json`.
-Growth (7d/30d) improves after several daily seeds.
+Snapshots land in `data/snapshots/`. Growth (7d/30d) improves after several daily runs.
 
-## Daily automation
+### Production
 
-GitHub Action [`.github/workflows/daily-seed.yml`](./.github/workflows/daily-seed.yml):
+- Live: **https://gitpulse-ppiiyo.vercel.app**
+- Daily Actions workflow: `.github/workflows/daily-seed.yml` (06:00 UTC)
+- Repo secret: `GITPULSE_GITHUB_TOKEN`
+- Vercel env: `GITHUB_TOKEN` (for live `/report` lookups)
 
-- Every day 06:00 UTC (+ manual dispatch)
-- Seeds repos + developers
-- Commits snapshots → Vercel redeploys
-
-Optional repo secret **`GITPULSE_GITHUB_TOKEN`**: PAT for higher GitHub API rate limits during seed.
-
-## Deploy
-
-**Production:** https://gitpulse-ppiiyo.vercel.app
-
-Vercel project `gitpulse` ↔ `ppiiyo/gitpulse`. Pushes to `main` auto-deploy.
+---
 
 ## Stack
 
-- Next.js 16 + TypeScript + Tailwind CSS 4
+- Next.js 16 · TypeScript · Tailwind CSS 4
 - GitHub API + JSON snapshots
-- Vercel + GitHub Actions
+- Vercel · GitHub Actions
+
+---
+
+## Roadmap
+
+- [x] Transparent ranking engine
+- [x] Live site + share cards
+- [x] Stack categories
+- [x] Personal report
+- [x] Daily automated seed
+- [ ] Deeper growth history (multi-week)
+- [ ] Weekly Pulse newsletter
+- [ ] API for third-party clients
+- [ ] Self-serve “claim profile”
+
+---
+
+## Contributing
+
+Ideas, formula debates, and PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+If GitPulse is useful — **star the repo**. It helps others discover growth-first rankings.
+
+---
 
 ## License
 
-MIT
+[MIT](./LICENSE) · Built in public.
