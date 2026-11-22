@@ -59,7 +59,8 @@ export default async function RepositoriesPage({
           )
           .map((e, i) => ({ ...e, rank: i + 1 }));
 
-  const shown = entries.slice(0, 250);
+  // Top 100 within the active board (All or a single stack)
+  const shown = entries.slice(0, 100);
   const catMeta = REPO_CATEGORIES.find((c) => c.id === category)!;
   const { source, snapshotDate } = full;
 
@@ -78,10 +79,8 @@ export default async function RepositoriesPage({
         </h1>
         <p className="mt-2 text-zinc-400 text-sm max-w-xl">
           {category === "all"
-            ? view === "growth"
-              ? "40% of the score is recent star growth. Full cohort across every theme."
-              : "Overall score across the full tracked cohort."
-            : `${catMeta.label}: ${catMeta.description}`}
+            ? "Overall board. Each stack targets ~100 repos after a full daily seed."
+            : `${catMeta.label}: ${catMeta.description} · top 100 in this stack`}
         </p>
       </div>
 
@@ -136,17 +135,15 @@ export default async function RepositoriesPage({
 
       {shown.length === 0 ? (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 text-sm text-zinc-400 text-center">
-          No repos in this category yet. Daily seed will fill more stacks
-          (security, mobile, backend…). Run{" "}
-          <code className="text-zinc-300">Actions → Daily seed</code> after
-          adding <code className="text-zinc-300">GITPULSE_GITHUB_TOKEN</code>.
+          No repos in this category yet. After a full Daily seed (with token),
+          each stack fills toward ~100.
         </div>
       ) : (
         <RankingTable entries={shown} type="repository" />
       )}
 
       <p className="mt-6 text-xs text-zinc-600">
-        Methodology v0.1-mvp · Source: {source}
+        Methodology v0.2 · Source: {source}
         {snapshotDate ? ` · Snapshot ${snapshotDate}` : " · demo data"}
         {" · "}
         <Link href="/methodology" className="text-zinc-500 hover:text-zinc-300">
